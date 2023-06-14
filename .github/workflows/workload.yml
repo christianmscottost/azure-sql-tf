@@ -12,7 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  tf-ci:
+  pr-ci:
+    if: github.event_name == 'pull_request' && github.event.pull_request.opened
     name: "Terraform PR Validation"
     runs-on: ubuntu-latest
     environment: azure
@@ -54,18 +55,15 @@ jobs:
 
       - name: Terraform Init
         id: initpr
-        if: github.event_name == 'pull_request'
         run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
 
       - name: Terraform Validate
         id: validatepr
-        if: github.event_name == 'pull_request'
         run: terraform validate -no-color
 
       - name: Terraform Review Apply
         id: apply
-        if: github.event_name == 'pull_request'
-        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}'
+        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       # - name: Terraform Output
@@ -75,7 +73,6 @@ jobs:
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
@@ -102,12 +99,39 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
+  main-ci:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    name: "Deploy Main"
+    runs-on: ubuntu-latest
+    environment: azure
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      TF_LOG: INFO
+    defaults:
+      run:
+        working-directory: ./tf/envdna
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.4.6
+
+      - name: Terraform Init
+        run: terraform init -backend-config='key=prod.tfstate'
+
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
 
-  destroy-environment:
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+  pr-cleanup:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true || github.event.pull_request.closed == true
     name: "Terraform Destroy Dynamic Environment"
     runs-on: ubuntu-latest
     environment: azure
@@ -137,7 +161,7 @@ jobs:
         run: terraform init -backend-config='key=${{ github.event.pull_request.head.ref }}.tfstate'
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -no-color -input=false -var 'environment=${{ github.event.pull_request.head.ref }}'
+        run: terraform destroy -auto-approve -no-color -input=false -var 'environment=${{ github.event.pull_request.head.ref }}' -var 'repo=https://github.com/${{ github.repository }}'
 
       - name: Login to Azure CLI
         uses: azure/login@v1
