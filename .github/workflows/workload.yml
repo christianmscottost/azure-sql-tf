@@ -1,0 +1,151 @@
+name: "Azure SQL Example with Dynamic Environments"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  tf-ci:
+    name: "Terraform PR Validation"
+    runs-on: ubuntu-latest
+    environment: azure
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      TF_LOG: INFO
+    permissions:
+      pull-requests: write
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: ./tf/envdna
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.4.6
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config='key=prod.tfstate'
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false -var 'environment=prod'
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: initpr
+        if: github.event_name == 'pull_request'
+        run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
+
+      - name: Terraform Validate
+        id: validatepr
+        if: github.event_name == 'pull_request'
+        run: terraform validate -no-color
+
+      - name: Terraform Review Apply
+        id: apply
+        if: github.event_name == 'pull_request'
+        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}'
+        continue-on-error: true
+
+      # - name: Terraform Output
+      #   id: tfout
+      #   if: github.event_name == 'pull_request'
+      #   run: terraform output -raw preview | sed 's/.$//'
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: ${{ steps.plan.outputs.stdout }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Prod Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Preview URL 🌎 [https://${{ steps.tfout.outputs.stdout }}](https://${{ steps.tfout.outputs.stdout }})
+            <details><summary>Show Prod Plan</summary>\n
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            </details>
+            Pushed by: @${{ github.actor }}, Action: ${{ github.event_name }}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false -var 'environment=prod'
+
+  destroy-environment:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    name: "Terraform Destroy Dynamic Environment"
+    runs-on: ubuntu-latest
+    environment: azure
+    permissions:
+      pull-requests: write
+      id-token: write
+      contents: read
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      TF_LOG: INFO
+    defaults:
+      run:
+        working-directory: ./tf/envdna
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.4.6
+
+      - name: Terraform Init
+        run: terraform init -backend-config='key=${{ github.event.pull_request.head.ref }}.tfstate'
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -no-color -input=false -var 'environment=${{ github.event.pull_request.head.ref }}'
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Remove state file from Azure Blob Storage
+        run: |
+          az storage blob delete --name "${{ github.event.pull_request.head.ref }}.tfstate" --account-name sasqlstate --container-name tfstate
+          az logout
