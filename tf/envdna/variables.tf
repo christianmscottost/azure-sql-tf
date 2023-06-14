@@ -8,3 +8,4 @@ variable "region" {
     suffix = "eus"
   }
 }
+variable "repo" {}

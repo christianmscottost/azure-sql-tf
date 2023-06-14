@@ -28,4 +28,5 @@ module "infrastructure" {
   service     = var.service
   environment = var.environment
   region      = var.region
+  repo = var.repo
 }

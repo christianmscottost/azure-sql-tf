@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+    types: [closed]
 
 permissions:
   id-token: write
@@ -48,7 +49,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false -var 'environment=prod'
+        run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       - name: Terraform Init
@@ -103,7 +104,7 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false -var 'environment=prod'
+        run: terraform apply -auto-approve -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
 
   destroy-environment:
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
