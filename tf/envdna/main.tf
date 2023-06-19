@@ -14,6 +14,7 @@ terraform {
     use_oidc             = true
     subscription_id      = "d02bae9e-95e6-4ab0-abca-34992fd65b2d"
     tenant_id            = "46947e84-c7c5-4572-bf44-0c0b2d9013b8"
+    key                  = "azuresql.tfstate"
   }
 }
 
@@ -28,5 +29,5 @@ module "infrastructure" {
   service     = var.service
   environment = var.environment
   region      = var.region
-  repo = var.repo
+  repo        = var.repo
 }
