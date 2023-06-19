@@ -9,3 +9,6 @@ variable "region" {
   }
 }
 variable "repo" {}
+variable "sku" {
+  default = "standard"
+}
