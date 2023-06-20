@@ -39,4 +39,5 @@ module "sql" {
   region = var.region
   repo = var.repo
   sku = var.sku
+  names = var.names
 }

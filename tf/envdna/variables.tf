@@ -12,3 +12,7 @@ variable "repo" {}
 variable "sku" {
   default = "standard"
 }
+variable "names" {
+    type = list(string)
+    default = ["test", "test2", "test3"]
+}
