@@ -15,7 +15,7 @@ resource "azurerm_resource_group" "sql" {
 }
 
 resource "azurerm_key_vault" "vault" {
-  name = "kv-usernames"
+  name = "kv-sql-usernames"
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   sku_name = var.sku
@@ -24,17 +24,18 @@ resource "azurerm_key_vault" "vault" {
   access_policy {
     tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
     #Placeholder value
-    object_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
+    object_id = "7bdd0ef2-6c8c-4483-b155-b7e1401110f8"
 
     key_permissions = [
-      "Get",
+      "Get", 
     ]
     secret_permissions = [
       "Get",
       "Set",
+      "List",
     ]
     storage_permissions = [
-      "Get",
+      "Get", "Set",
     ]
   }
 
@@ -53,11 +54,11 @@ resource "azurerm_mssql_server" "sql" {
     location = azurerm_resource_group.sql.location
     resource_group_name = azurerm_resource_group.sql.name
     #Placeholder name
-    name = "server"
+    name = "ost-sql-server"
     #Placeholder version
-    version = "2.0"
+    version = "12.0"
 
-    administrator_login = "admin"
+    administrator_login = "OSTAdmin"
     administrator_login_password = azurerm_key_vault_secret.sql-secret.value
     
   
