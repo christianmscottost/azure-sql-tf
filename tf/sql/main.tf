@@ -68,7 +68,7 @@ resource "azurerm_storage_account" "logs" {
   resource_group_name = azurerm_resource_group.sql.name
   location = azurerm_resource_group.sql.location
   account_tier = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = "GRS"
   public_network_access_enabled = true
   
 }
