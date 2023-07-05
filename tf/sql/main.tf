@@ -86,17 +86,27 @@ resource "azurerm_storage_account" "logs" {
   account_replication_type = "GRS"
   public_network_access_enabled = true
   infrastructure_encryption_enabled = true
+  account_kind = "StorageV2"
   network_rules {
     default_action = "Allow"
     virtual_network_subnet_ids = [azurerm_subnet.link.id]
   }
-  
+  identity {
+      type = "UserAssigned"
+      identity_ids = [azurerm_user_assigned_identity.sql_id.id]
+    }
+  customer_managed_key {
+    key_vault_key_id = azurerm_key_vault_key.sql.id
+    user_assigned_identity_id = azurerm_user_assigned_identity.sql_id.id
+  }
 }
 resource "azurerm_storage_encryption_scope" "encrypt" {
   name               = "logsmanaged"
   storage_account_id = azurerm_storage_account.logs.id
   source             = "Microsoft.Storage"
   infrastructure_encryption_required = true
+  key_vault_key_id = azurerm_key_vault_key.sql.id
+  
 }
 resource "azurerm_monitor_diagnostic_setting" "logs" {
   name = "logs"
@@ -158,6 +168,7 @@ resource "azurerm_mssql_database" "database" {
     long_term_retention_policy {
       monthly_retention = "P1M"
     }
+    
   
 }
 # Virtual network, subnet, and private service endpoint creation
