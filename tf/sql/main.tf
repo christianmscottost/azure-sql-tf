@@ -15,7 +15,7 @@ resource "azurerm_resource_group" "sql" {
 }
 # Key vault for to hold server users
 resource "azurerm_key_vault" "vault" {
-  name = "kv-sql-usernames"
+  name = "kv-${var.service}-${var.environment}-${var.region.suffix}"
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   sku_name = var.sku
@@ -79,7 +79,7 @@ resource "azurerm_key_vault_secret" "sql-secret" {
 }
 #Setting up resource log for key vault
 resource "azurerm_storage_account" "logs" {
-  name = "sqlkvlogs"
+  name = "sa-${var.service}-${var.environment}-${var.region.suffix}"
   resource_group_name = azurerm_resource_group.sql.name
   location = azurerm_resource_group.sql.location
   account_tier = "Standard"
@@ -101,7 +101,7 @@ resource "azurerm_storage_account" "logs" {
   }
 }
 resource "azurerm_storage_encryption_scope" "encrypt" {
-  name               = "logsmanaged"
+  name               = "scope-${var.service}-${var.environment}-${var.region.suffix}"
   storage_account_id = azurerm_storage_account.logs.id
   source             = "Microsoft.Storage"
   infrastructure_encryption_required = true
@@ -109,7 +109,7 @@ resource "azurerm_storage_encryption_scope" "encrypt" {
   
 }
 resource "azurerm_monitor_diagnostic_setting" "logs" {
-  name = "logs"
+  name = "ds-${var.service}-${var.environment}-${var.region.suffix}"
   target_resource_id = azurerm_key_vault.vault.id
   storage_account_id = azurerm_storage_account.logs.id
 
@@ -137,7 +137,7 @@ resource "azurerm_user_assigned_identity" "sql_id" {
 resource "azurerm_mssql_server" "sql" {
     location = azurerm_resource_group.sql.location
     resource_group_name = azurerm_resource_group.sql.name
-    name = "ost-sql-server"
+    name = "sql-${var.service}-${var.environment}-${var.region.suffix}"
     version = "12.0"
 
     administrator_login = "OSTAdmin"
@@ -179,7 +179,7 @@ resource "random_string" "link" {
 }
 
 resource "azurerm_network_ddos_protection_plan" "ddos" {
-  name = "ost-ddos-protection"
+  name = "ddos-${var.service}-${var.environment}-${var.region.suffix}"
   resource_group_name = azurerm_resource_group.sql.name
   location = azurerm_resource_group.sql.location
 }
@@ -252,7 +252,7 @@ resource "azurerm_private_endpoint" "storage_link" {
 
 # Security group and association for subnet
 resource "azurerm_network_security_group" "sql-nsg" {
-  name = "sql-nsg"
+  name = "nsg-${var.service}-${var.environment}-${var.region.suffix}"
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   tags = local.default-tags  
