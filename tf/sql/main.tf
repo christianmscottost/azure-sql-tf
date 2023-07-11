@@ -129,7 +129,7 @@ resource "azurerm_monitor_diagnostic_setting" "logs" {
 }
 # SQL server and database
 resource "azurerm_user_assigned_identity" "sql_id" {
-  name                = "sql-admin"
+  name                = "sql-admin-${var.service}-${var.environment}-${var.region.suffix}"
   location            = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
 }
@@ -184,7 +184,7 @@ resource "azurerm_network_ddos_protection_plan" "ddos" {
   location = azurerm_resource_group.sql.location
 }
 resource "azurerm_virtual_network" "link" {
-  name = "${random_string.link.result}-network"
+  name = "${random_string.link.result}-network-${var.service}-${var.environment}-${var.region.suffix}"
   address_space = ["10.0.0.0/16"]
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
@@ -195,7 +195,7 @@ resource "azurerm_virtual_network" "link" {
 }
 
 resource "azurerm_subnet" "link" {
-  name = "${random_string.link.result}-subnet"
+  name = "${random_string.link.result}-subnet-${var.service}-${var.environment}-${var.region.suffix}"
   resource_group_name = azurerm_resource_group.sql.name
   virtual_network_name = azurerm_virtual_network.link.name
   address_prefixes = ["10.0.0.0/24"]
@@ -204,13 +204,13 @@ resource "azurerm_subnet" "link" {
 }
 
 resource "azurerm_private_endpoint" "link" {
-  name = "${random_string.link.result}-endpoint"
+  name = "${random_string.link.result}-endpoint-${var.service}-${var.environment}-${var.region.suffix}"
   subnet_id = azurerm_subnet.link.id
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   
   private_service_connection {
-    name = "${random_string.link.result}-privateserviceconnection"
+    name = "${random_string.link.result}-psg-${var.service}-${var.environment}-${var.region.suffix}"
     private_connection_resource_id = azurerm_key_vault.vault.id
     is_manual_connection = false
     subresource_names = ["vault"]
@@ -219,13 +219,13 @@ resource "azurerm_private_endpoint" "link" {
 
 }
 resource "azurerm_private_endpoint" "sql_link" {
-  name = "${random_string.link.result}-sql-endpoint"
+  name = "${random_string.link.result}-sql-endpoint-${var.service}-${var.environment}-${var.region.suffix}"
   subnet_id = azurerm_subnet.link.id
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   
   private_service_connection {
-    name = "${random_string.link.result}-sql-privateserviceconnection"
+    name = "${random_string.link.result}-sql-psc-${var.service}-${var.environment}-${var.region.suffix}"
     private_connection_resource_id = azurerm_mssql_server.sql.id
     is_manual_connection = false
     subresource_names = ["sqlServer"]
@@ -235,13 +235,13 @@ resource "azurerm_private_endpoint" "sql_link" {
 }
 
 resource "azurerm_private_endpoint" "storage_link" {
-  name = "${random_string.link.result}-storage-endpoint"
+  name = "${random_string.link.result}-storage-endpoint-${var.service}-${var.environment}-${var.region.suffix}"
   subnet_id = azurerm_subnet.link.id
   location = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
   
   private_service_connection {
-    name = "${random_string.link.result}-storage-privateserviceconnection"
+    name = "${random_string.link.result}-storage-psg-${var.service}-${var.environment}-${var.region.suffix}"
     private_connection_resource_id = azurerm_storage_account.logs.id
     is_manual_connection = false
     subresource_names = ["File"]
@@ -265,7 +265,7 @@ resource "azurerm_subnet_network_security_group_association" "sql-nsg" {
 
 # Created customer managed keys
 resource "azurerm_key_vault_key" "sql" {
-  name         = "byok"
+  name         = "key-${var.service}-${var.environment}-${var.region.suffix}"
   key_vault_id = azurerm_key_vault.vault.id
   key_type     = "RSA"
   key_size     = 2048
