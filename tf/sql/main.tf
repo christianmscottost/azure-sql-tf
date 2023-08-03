@@ -9,7 +9,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "sql" {
-  name     = "rg-${var.service}-${var.environment}-${var.region.suffix}-better"
+  name     = "rg-${var.service}-${var.environment}-${var.region.suffix}"
   location = var.region.name
   tags     = local.default-tags
 }
@@ -79,7 +79,7 @@ resource "azurerm_key_vault_secret" "sql-secret" {
 }
 #Setting up resource log for key vault
 resource "azurerm_storage_account" "logs" {
-  name                              = "sa-${var.service}-${var.environment}-${var.region.suffix}"
+  name                              = "sa${var.service}${var.environment}${var.region.suffix}"
   resource_group_name               = azurerm_resource_group.sql.name
   location                          = azurerm_resource_group.sql.location
   account_tier                      = "Standard"
