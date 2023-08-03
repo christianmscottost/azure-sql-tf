@@ -12,9 +12,9 @@ terraform {
   #   storage_account_name = "sasqlstate"
   #   container_name       = "tfstate"
   #   use_oidc             = true
-  #   # subscription_id      = "d02bae9e-95e6-4ab0-abca-34992fd65b2d"
+  #   subscription_id      = "d02bae9e-95e6-4ab0-abca-34992fd65b2d"
   #   tenant_id            = "46947e84-c7c5-4572-bf44-0c0b2d9013b8"
-  #   key                  = "azuresql.tfstate"
+  #   # key                  = "azuresql.tfstate"
   # }
 }
 
@@ -33,11 +33,11 @@ provider "azurerm" {
 # }
 
 module "sql" {
-  source = "../sql"
-  service = var.service
+  source      = "../sql"
+  service     = var.service
   environment = var.environment
-  region = var.region
-  repo = var.repo
-  sku = var.sku
-  names = var.names
+  region      = var.region
+  repo        = var.repo
+  sku         = var.sku
+  names       = var.names
 }
