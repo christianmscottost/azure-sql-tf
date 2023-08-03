@@ -283,4 +283,5 @@ resource "azurerm_key_vault_key" "sql" {
 resource "azurerm_mssql_server_transparent_data_encryption" "sql" {
   server_id        = azurerm_mssql_server.sql.id
   key_vault_key_id = azurerm_key_vault_key.sql.id 
+  
 }
