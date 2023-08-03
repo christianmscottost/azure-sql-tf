@@ -101,7 +101,7 @@ resource "azurerm_storage_account" "logs" {
   }
 }
 resource "azurerm_storage_encryption_scope" "encrypt" {
-  name                               = "scope-${var.service}-${var.environment}-${var.region.suffix}"
+  name                               = "scope${var.service}${var.environment}${var.region.suffix}"
   storage_account_id                 = azurerm_storage_account.logs.id
   source                             = "Microsoft.Storage"
   infrastructure_encryption_required = true
