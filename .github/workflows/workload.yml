@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   pr-ci:
-    if: github.event_name == 'pull_request' && github.event.pull_request.opened
+    if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened'
     name: "Terraform PR Validation"
     runs-on: ubuntu-latest
     environment: azure
@@ -100,7 +100,7 @@ jobs:
         run: exit 1
 
   main-ci:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     name: "Deploy Main"
     runs-on: ubuntu-latest
     environment: azure
@@ -131,7 +131,7 @@ jobs:
         run: terraform apply -auto-approve -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
 
   pr-cleanup:
-    if: github.event_name == 'pull_request' && github.event.pull_request.closed == true
+    if: github.event.action == 'closed'
     name: "Terraform Destroy Dynamic Environment"
     runs-on: ubuntu-latest
     environment: azure
