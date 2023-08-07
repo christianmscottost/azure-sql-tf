@@ -172,5 +172,5 @@ jobs:
 
       - name: Remove state file from Azure Blob Storage
         run: |
-          az storage blob delete --name "${{ github.event.pull_request.head.ref }}.tfstate" --account-name sasqlstate --container-name tfstate
+          az storage blob delete --name "${{ github.event.pull_request.head.ref }}.tfstate" --account-name sasqlstate1 --container-name tfstate
           az logout

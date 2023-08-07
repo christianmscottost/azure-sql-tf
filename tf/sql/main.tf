@@ -71,6 +71,12 @@ resource "random_password" "sql-password" {
   special          = true
   override_special = "!#$%&,."
 }
+
+resource "random_password" "sql-password-2" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&,."
+}
 resource "azurerm_key_vault_secret" "sql-secret" {
   key_vault_id    = azurerm_key_vault.vault.id
   name            = var.kv-secret
