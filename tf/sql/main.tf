@@ -178,20 +178,20 @@ resource "random_string" "link" {
   upper   = false
 }
 
-resource "azurerm_network_ddos_protection_plan" "ddos" {
-  name                = "ddos-${var.service}-${var.environment}-${var.region.suffix}"
-  resource_group_name = azurerm_resource_group.sql.name
-  location            = azurerm_resource_group.sql.location
-}
+# resource "azurerm_network_ddos_protection_plan" "ddos" {
+#   name                = "ddos-${var.service}-${var.environment}-${var.region.suffix}"
+#   resource_group_name = azurerm_resource_group.sql.name
+#   location            = azurerm_resource_group.sql.location
+# }
 resource "azurerm_virtual_network" "link" {
   name                = "${random_string.link.result}-network-${var.service}-${var.environment}-${var.region.suffix}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
-  ddos_protection_plan {
-    enable = true
-    id     = azurerm_network_ddos_protection_plan.ddos.id
-  }
+  # ddos_protection_plan {
+  #   enable = true
+  #   id     = azurerm_network_ddos_protection_plan.ddos.id
+  # }
 }
 
 resource "azurerm_subnet" "link" {
