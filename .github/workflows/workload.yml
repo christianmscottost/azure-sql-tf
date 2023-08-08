@@ -42,7 +42,7 @@ jobs:
 
       - name: Repo Name Test
         id: Repotest
-        run: echo ${{github.event.repository.name}}
+        run: echo ${{github.repository}}
 
       - name: Contains Test
         id: test
