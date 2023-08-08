@@ -22,7 +22,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       TF_LOG: INFO
-      REPO: ${{ contains(github.ref_name, '-') }}
+      REPO: ${{ contains(github.event.repository.name, '-') }}
     permissions:
       pull-requests: write
       id-token: write
@@ -42,7 +42,7 @@ jobs:
 
       - name: Repo Name Test
         id: Repotest
-        run: echo ${{github.ref_name}}
+        run: echo ${{github.event.repository.name}}
 
       - name: Contains Test
         id: test
