@@ -39,9 +39,9 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      # - name: Terraform Init
-      #   id: init
-      #   run: terraform init -backend-config='key=prod.tfstate'
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config='key=prod.tfstate'
 
       - name: Terraform Validate
         id: validate
@@ -53,9 +53,9 @@ jobs:
         run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
-      - name: Terraform Init
-        id: initpr
-        run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
+      # - name: Terraform Init
+      #   id: initpr
+      #   run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
 
       - name: Terraform Validate
         id: validatepr
