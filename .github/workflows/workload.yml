@@ -58,7 +58,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/$REPO'
+        run: terraform plan -no-color -input=false -var 'environment=prod' -var ${{format('repo=https://github.com/{0}', '$REPO')}}
         continue-on-error: true
 
       - name: Terraform Init
@@ -71,7 +71,7 @@ jobs:
 
       - name: Terraform Review Apply
         id: apply
-        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}' -var 'repo=https://github.com/$REPO'
+        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       # - name: Terraform Output
