@@ -22,6 +22,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       TF_LOG: INFO
+      REPO: ${{ contains(github.ref_name, '-') }}
     permissions:
       pull-requests: write
       id-token: write
@@ -38,6 +39,10 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.6
+
+      - name: Test
+        id: test
+        run: echo $REPO
 
       - name: Terraform Init
         id: init
