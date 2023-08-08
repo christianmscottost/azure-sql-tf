@@ -71,7 +71,7 @@ jobs:
 
       - name: Terraform Review Apply
         id: apply
-        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}' -var 'repo=https://github.com/${{ github.repository }}'
+        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ env.REPO }}' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       # - name: Terraform Output
