@@ -47,7 +47,7 @@ jobs:
       - name: Contains Test
         id: test
         run: |
-          TEST = $GITHUB_REPOSITORY
+          TEST = ${{github.repository}}
           REPLACE = "${TEST//-/.}"
           echo $REPLACE
 
