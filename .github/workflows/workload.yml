@@ -63,7 +63,7 @@ jobs:
 
       - name: Terraform Init
         id: initpr
-        run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
+        run: terraform init -backend-config='key=${{ env.REPO }}.tfstate' -reconfigure
 
       - name: Terraform Validate
         id: validatepr
