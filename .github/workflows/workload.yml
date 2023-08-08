@@ -40,7 +40,11 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      - name: Test
+      - name: Repo Name Test
+        id: Repotest
+        run: echo $github.ref_name
+
+      - name: Contains Test
         id: test
         run: echo $REPO
 
