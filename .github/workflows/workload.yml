@@ -22,7 +22,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       TF_LOG: INFO
-      REPO: ${{ contains(github.event.repository.name, '-') }}
+      REPO: ''
     permissions:
       pull-requests: write
       id-token: write
@@ -40,12 +40,12 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      - name: Repo Name Test
-        id: Repotest
-        run: echo ${{github.repository}}
 
-      - name: Contains Test
-        run: echo ${{github.repository}} | tr -d - 
+      - name: Delete -
+        run: echo "REPO=$(echo ${{github.repository}} | tr -d -)" >> $GITHUB_ENV
+
+      - name: Test
+        run: echo $REPO
 
       - name: Terraform Init
         id: init
