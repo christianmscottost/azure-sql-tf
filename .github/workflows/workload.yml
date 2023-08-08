@@ -42,7 +42,7 @@ jobs:
 
 
       - name: Delete -
-        run: echo "REPO=$(echo ${{github.repository}} | tr -d -)" >> $GITHUB_ENV
+        run: echo "REPO=$(echo ${{github.head_ref}} | tr -d -)" >> $GITHUB_ENV
 
       - name: Test
         run: echo $REPO
@@ -58,7 +58,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ env.REPO }}'
+        run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       - name: Terraform Init
