@@ -53,9 +53,9 @@ jobs:
         run: terraform plan -no-color -input=false -var 'environment=prod' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
-      # - name: Terraform Init
-      #   id: initpr
-      #   run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
+      - name: Terraform Init
+        id: initpr
+        run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
 
       - name: Terraform Validate
         id: validatepr
