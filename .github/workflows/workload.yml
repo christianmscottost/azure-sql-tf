@@ -45,8 +45,7 @@ jobs:
         run: echo ${{github.repository}}
 
       - name: Contains Test
-        run: | 
-          echo "${github.respository/-/.}"
+        run: echo ${{github.repository}} | tr '-' ''         
 
       - name: Terraform Init
         id: init
