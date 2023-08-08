@@ -45,11 +45,8 @@ jobs:
         run: echo ${{github.repository}}
 
       - name: Contains Test
-        id: test
-        run: |
-          TEST = ${{github.repository}}
-          REPLACE = "${TEST//-/.}"
-          echo $REPLACE
+        run: | 
+          echo "${github.respository/-/.}"
 
       - name: Terraform Init
         id: init
