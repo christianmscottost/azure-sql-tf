@@ -61,6 +61,7 @@ resource "azurerm_key_vault" "vault" {
   access_policy {
     tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
     object_id = "7dfd636f-dfc0-40d9-aabc-9c38f63c0628"
+    application_id = "904da859-e5f7-4b7a-8504-5e76aa4eb898"
 
 
     key_permissions = [
