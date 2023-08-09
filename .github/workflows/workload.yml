@@ -42,7 +42,7 @@ jobs:
 
 
       - name: Delete -
-        run: echo "REPO=$(echo ${{github.head_ref}} | tr -d -)" >> $GITHUB_ENV
+        run: echo "REPO=$(echo ${{github.head_ref}} | tr -cd '[:alnum:]')" >> $GITHUB_ENV
 
       - name: Test
         run: echo $REPO
