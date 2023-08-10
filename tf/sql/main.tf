@@ -64,7 +64,7 @@ resource "azurerm_key_vault" "vault" {
 
 
     key_permissions = [
-      "Get", "List", "Create", "Delete", "Recover", "Rotate", "GetRotationPolicy", "SetRotationPolicy", "Wrapkey", "UnwrapKey",
+      "Get", "List", "Create", "Delete", "Recover", "Rotate", "GetRotationPolicy", "SetRotationPolicy", "WrapKey", "UnwrapKey",
     ]
     secret_permissions = [
       "Get",
