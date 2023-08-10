@@ -57,6 +57,7 @@ resource "azurerm_key_vault" "vault" {
     ]
   }
 
+  #Service Principal access policy
   access_policy {
     tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
     object_id = "7dfd636f-dfc0-40d9-aabc-9c38f63c0628"
