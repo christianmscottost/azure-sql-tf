@@ -64,15 +64,15 @@ resource "azurerm_key_vault" "vault" {
 
 
     key_permissions = [
-      "Get", "List", "Create", "Delete", "Recover", "Rotate", "GetRotationPolicy", "SetRotationPolicy"
+      "Get", "List", "Create", "Delete", "Recover", "Rotate", "GetRotationPolicy", "SetRotationPolicy",
     ]
     secret_permissions = [
       "Get",
       "Set",
-      "List"
+      "List",
     ]
     storage_permissions = [
-      "Get", "Set"
+      "Get", "Set",
     ]
   }
 
