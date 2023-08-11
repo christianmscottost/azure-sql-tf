@@ -57,6 +57,25 @@ resource "azurerm_key_vault" "vault" {
     ]
   }
 
+  #Service Principal access policy
+  access_policy {
+    tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
+    object_id = "7dfd636f-dfc0-40d9-aabc-9c38f63c0628"
+
+
+    key_permissions = [
+      "Get", "List", "Create", "Delete", "Recover", "Rotate", "GetRotationPolicy", "SetRotationPolicy", "WrapKey", "UnwrapKey",
+    ]
+    secret_permissions = [
+      "Get",
+      "Set",
+      "List",
+    ]
+    storage_permissions = [
+      "Get", "Set",
+    ]
+  }
+
   network_acls {
     bypass                     = "AzureServices"
     default_action             = "Allow"
@@ -71,11 +90,18 @@ resource "random_password" "sql-password" {
   special          = true
   override_special = "!#$%&,."
 }
+
+resource "random_password" "sql-password-2" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&,."
+}
 resource "azurerm_key_vault_secret" "sql-secret" {
   key_vault_id    = azurerm_key_vault.vault.id
   name            = var.kv-secret
   value           = random_password.sql-password.result
-  expiration_date = "2023-07-31T00:00:00Z"
+  expiration_date = "2025-07-31T00:00:00Z"
+  depends_on = [ azurerm_key_vault.vault ]
 }
 #Setting up resource log for key vault
 resource "azurerm_storage_account" "logs" {
@@ -178,20 +204,20 @@ resource "random_string" "link" {
   upper   = false
 }
 
-resource "azurerm_network_ddos_protection_plan" "ddos" {
-  name                = "ddos-${var.service}-${var.environment}-${var.region.suffix}"
-  resource_group_name = azurerm_resource_group.sql.name
-  location            = azurerm_resource_group.sql.location
-}
+# resource "azurerm_network_ddos_protection_plan" "ddos" {
+#   name                = "ddos-${var.service}-${var.environment}-${var.region.suffix}"
+#   resource_group_name = azurerm_resource_group.sql.name
+#   location            = azurerm_resource_group.sql.location
+# }
 resource "azurerm_virtual_network" "link" {
   name                = "${random_string.link.result}-network-${var.service}-${var.environment}-${var.region.suffix}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.sql.location
   resource_group_name = azurerm_resource_group.sql.name
-  ddos_protection_plan {
-    enable = true
-    id     = azurerm_network_ddos_protection_plan.ddos.id
-  }
+  # ddos_protection_plan {
+  #   enable = true
+  #   id     = azurerm_network_ddos_protection_plan.ddos.id
+  # }
 }
 
 resource "azurerm_subnet" "link" {

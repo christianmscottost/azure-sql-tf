@@ -9,12 +9,11 @@ terraform {
   }
   backend "azurerm" {
     resource_group_name  = "rg-sql-init-eus"
-    storage_account_name = "sasqlstate"
+    storage_account_name = "sasqlstate1"
     container_name       = "tfstate"
     use_oidc             = true
-    subscription_id      = "d02bae9e-95e6-4ab0-abca-34992fd65b2d"
-    tenant_id            = "46947e84-c7c5-4572-bf44-0c0b2d9013b8"
-    # key                  = "azuresql.tfstate"
+    subscription_id      = "62c223af-3ea4-4cf8-bb4a-c8449fe872e1"
+    tenant_id            = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
   }
 }
 

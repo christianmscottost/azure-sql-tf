@@ -22,6 +22,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       TF_LOG: INFO
+      REPO: ''
     permissions:
       pull-requests: write
       id-token: write
@@ -39,6 +40,13 @@ jobs:
         with:
           terraform_version: 1.4.6
 
+
+      - name: Delete -
+        run: echo "REPO=$(echo ${{github.head_ref}} | tr -cd '[:alnum:]')" >> $GITHUB_ENV
+
+      - name: Test
+        run: echo $REPO
+
       - name: Terraform Init
         id: init
         run: terraform init -backend-config='key=prod.tfstate'
@@ -55,7 +63,7 @@ jobs:
 
       - name: Terraform Init
         id: initpr
-        run: terraform init -backend-config='key=${{ github.head_ref }}.tfstate' -reconfigure
+        run: terraform init -backend-config='key=${{ env.REPO }}.tfstate' -reconfigure
 
       - name: Terraform Validate
         id: validatepr
@@ -63,7 +71,7 @@ jobs:
 
       - name: Terraform Review Apply
         id: apply
-        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ github.head_ref }}' -var 'repo=https://github.com/${{ github.repository }}'
+        run: terraform apply -auto-approve -no-color -input=false -var 'environment=${{ env.REPO }}' -var 'repo=https://github.com/${{ github.repository }}'
         continue-on-error: true
 
       # - name: Terraform Output
@@ -144,6 +152,7 @@ jobs:
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       TF_LOG: INFO
+      REPO: ''
     defaults:
       run:
         working-directory: ./tf/envdna
@@ -156,12 +165,18 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.6
+      
+      - name: Delete invalid characters
+        run: echo "REPO=$(echo ${{github.head_ref}} | tr -cd '[:alnum:]')" >> $GITHUB_ENV
+
+      - name: Test
+        run: echo $REPO
 
       - name: Terraform Init
-        run: terraform init -backend-config='key=${{ github.event.pull_request.head.ref }}.tfstate'
+        run: terraform init -backend-config='key=${{ env.REPO}}.tfstate'
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve -no-color -input=false -var 'environment=${{ github.event.pull_request.head.ref }}' -var 'repo=https://github.com/${{ github.repository }}'
+        run: terraform destroy -auto-approve -no-color -input=false -var 'environment=${{ env.REPO }}' -var 'repo=https://github.com/${{ github.repository }}'
 
       - name: Login to Azure CLI
         uses: azure/login@v1
@@ -172,5 +187,5 @@ jobs:
 
       - name: Remove state file from Azure Blob Storage
         run: |
-          az storage blob delete --name "${{ github.event.pull_request.head.ref }}.tfstate" --account-name sasqlstate --container-name tfstate
+          az storage blob delete --name "${{ env.REPO }}.tfstate" --account-name sasqlstate1 --container-name tfstate
           az logout
