@@ -39,6 +39,7 @@ resource "azurerm_key_vault" "vault" {
       "Get", "Set",
     ]
   }
+  #Access policy for managed id
   access_policy {
     tenant_id = azurerm_user_assigned_identity.sql_id.tenant_id
     object_id = azurerm_user_assigned_identity.sql_id.principal_id
@@ -75,7 +76,7 @@ resource "azurerm_key_vault" "vault" {
       "Get", "Set",
     ]
   }
-
+  
   network_acls {
     bypass                     = "AzureServices"
     default_action             = "Allow"
