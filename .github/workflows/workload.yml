@@ -38,7 +38,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.4.6
+          terraform_version: 1.5.5
 
 
       - name: Delete -
@@ -164,7 +164,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.4.6
+          terraform_version: 1.5.5
       
       - name: Delete invalid characters
         run: echo "REPO=$(echo ${{github.head_ref}} | tr -cd '[:alnum:]')" >> $GITHUB_ENV
