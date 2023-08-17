@@ -195,6 +195,7 @@ resource "azurerm_mssql_database" "database" {
 
   long_term_retention_policy {
     monthly_retention = "P1M"
+    week_of_year = 1
   }
 
 
