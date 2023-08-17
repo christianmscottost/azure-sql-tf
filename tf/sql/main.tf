@@ -39,6 +39,7 @@ resource "azurerm_key_vault" "vault" {
       "Get", "Set",
     ]
   }
+  #Access policy for managed id
   access_policy {
     tenant_id = azurerm_user_assigned_identity.sql_id.tenant_id
     object_id = azurerm_user_assigned_identity.sql_id.principal_id
@@ -60,7 +61,7 @@ resource "azurerm_key_vault" "vault" {
   #Service Principal access policy
   access_policy {
     tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
-    object_id = "7dfd636f-dfc0-40d9-aabc-9c38f63c0628"
+    object_id = "08b5b379-4869-4b76-bc39-1904153c9b26"
 
 
     key_permissions = [
@@ -101,7 +102,7 @@ resource "azurerm_key_vault_secret" "sql-secret" {
   name            = var.kv-secret
   value           = random_password.sql-password.result
   expiration_date = "2025-07-31T00:00:00Z"
-  depends_on = [ azurerm_key_vault.vault ]
+  depends_on      = [azurerm_key_vault.vault]
 }
 #Setting up resource log for key vault
 resource "azurerm_storage_account" "logs" {
@@ -186,6 +187,7 @@ resource "azurerm_mssql_server" "sql" {
 
 }
 resource "azurerm_mssql_database" "database" {
+  depends_on = [ azurerm_mssql_server.sql, azurerm_mssql_server_transparent_data_encryption.sql ]
   count                = length(var.names)
   name                 = var.names[count.index]
   server_id            = azurerm_mssql_server.sql.id
@@ -193,6 +195,7 @@ resource "azurerm_mssql_database" "database" {
 
   long_term_retention_policy {
     monthly_retention = "P1M"
+    week_of_year = 1
   }
 
 
