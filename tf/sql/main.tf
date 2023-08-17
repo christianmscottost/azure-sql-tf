@@ -187,6 +187,7 @@ resource "azurerm_mssql_server" "sql" {
 
 }
 resource "azurerm_mssql_database" "database" {
+  depends_on = [ azurerm_mssql_server.sql, azurerm_mssql_server_transparent_data_encryption.sql ]
   count                = length(var.names)
   name                 = var.names[count.index]
   server_id            = azurerm_mssql_server.sql.id
