@@ -61,7 +61,7 @@ resource "azurerm_key_vault" "vault" {
   #Service Principal access policy
   access_policy {
     tenant_id = "567e2175-bf4e-4bcc-b114-335fa0061f2f"
-    object_id = "7dfd636f-dfc0-40d9-aabc-9c38f63c0628"
+    object_id = "08b5b379-4869-4b76-bc39-1904153c9b26"
 
 
     key_permissions = [
@@ -76,7 +76,7 @@ resource "azurerm_key_vault" "vault" {
       "Get", "Set",
     ]
   }
-  
+
   network_acls {
     bypass                     = "AzureServices"
     default_action             = "Allow"
@@ -102,7 +102,7 @@ resource "azurerm_key_vault_secret" "sql-secret" {
   name            = var.kv-secret
   value           = random_password.sql-password.result
   expiration_date = "2025-07-31T00:00:00Z"
-  depends_on = [ azurerm_key_vault.vault ]
+  depends_on      = [azurerm_key_vault.vault]
 }
 #Setting up resource log for key vault
 resource "azurerm_storage_account" "logs" {
